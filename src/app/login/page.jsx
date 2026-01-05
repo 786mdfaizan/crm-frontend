@@ -93,7 +93,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {/* Username Field */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   />
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   <button
-                    type="button"
+                    type="submit"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
@@ -196,7 +196,7 @@ export default function LoginPage() {
                   </button>
                 </div>
               )}
-            </div>
+            </form>
           </div>
         </div>
 
