@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { 
   Users, Plus, Search, Filter, ChevronDown, Edit3, Mail, GraduationCap,
   Loader2, TrendingUp, CheckCircle2, Clock, AlertCircle, Download,
-  RefreshCw, ArrowUpDown, FileText
+  RefreshCw, ArrowUpDown, FileText, Phone
 } from 'lucide-react';
 
 export default function LeadsPage() {
@@ -51,6 +51,7 @@ export default function LeadsPage() {
       filtered = filtered.filter(lead =>
         lead.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (lead.mobileNumber || '').includes(searchQuery) ||          // Added mobile search
         lead.collegePreference.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (lead.consultant?.username || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -59,11 +60,15 @@ export default function LeadsPage() {
       filtered = filtered.filter(lead => lead.remark === statusFilter);
     }
     filtered.sort((a, b) => {
-      let aVal = sortConfig.key === 'consultant' ? (a.consultant?.username || '') : a[sortConfig.key];
-      let bVal = sortConfig.key === 'consultant' ? (b.consultant?.username || '') : b[sortConfig.key];
-      if (sortConfig.key === 'createdAt') {
-        aVal = new Date(aVal);
-        bVal = new Date(bVal);
+      let aVal = sortConfig.key === 'consultant' ? (a.consultant?.username || '') :
+                 sortConfig.key === 'mobileNumber' ? (a.mobileNumber || '') :   // Added mobile sort
+                 a[sortConfig.key];
+      let bVal = sortConfig.key === 'consultant' ? (b.consultant?.username || '') :
+                 sortConfig.key === 'mobileNumber' ? (b.mobileNumber || '') :
+                 b[sortConfig.key];
+      if (sortConfig.key === 'createdAt' || sortConfig.key === 'mobileNumber') {
+        aVal = aVal || '';
+        bVal = bVal || '';
       }
       if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
       if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
@@ -101,9 +106,13 @@ export default function LeadsPage() {
   const uniqueStatuses = ['all', ...new Set(leads.map(l => l.remark))];
 
   const exportToCSV = () => {
-    const headers = isAdmin ? ['Consultant', 'Student Name', 'Email', 'College', 'Status', 'Created Date'] : ['Student Name', 'Email', 'College', 'Status', 'Created Date'];
+    const headers = isAdmin 
+      ? ['Consultant', 'Student Name', 'Email', 'Mobile', 'College', 'Status', 'Created Date']  // Added Mobile
+      : ['Student Name', 'Email', 'Mobile', 'College', 'Status', 'Created Date'];             // Added Mobile
     const rows = filteredLeads.map(lead => {
-      const row = isAdmin ? [lead.consultant?.username || 'N/A', lead.studentName, lead.email, lead.collegePreference, lead.remark, new Date(lead.createdAt).toLocaleDateString()] : [lead.studentName, lead.email, lead.collegePreference, lead.remark, new Date(lead.createdAt).toLocaleDateString()];
+      const row = isAdmin 
+        ? [lead.consultant?.username || 'N/A', lead.studentName, lead.email, lead.mobileNumber || 'N/A', lead.collegePreference, lead.remark, new Date(lead.createdAt).toLocaleDateString()]
+        : [lead.studentName, lead.email, lead.mobileNumber || 'N/A', lead.collegePreference, lead.remark, new Date(lead.createdAt).toLocaleDateString()];
       return row.join(',');
     });
     const csv = [headers.join(','), ...rows].join('\n');
@@ -245,7 +254,10 @@ export default function LeadsPage() {
                       <th onClick={() => setSortConfig({ key: 'studentName', direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase cursor-pointer hover:bg-gray-200">
                         <div className="flex items-center gap-2"><span>Student</span><ArrowUpDown className="w-4 h-4" /></div>
                       </th>
-                      <th className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase hidden lg:table-cell">Contact</th>
+                      <th onClick={() => setSortConfig({ key: 'mobileNumber', direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })} className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase cursor-pointer hover:bg-gray-200">
+                        <div className="flex items-center gap-2"><Phone className="w-4 h-4" /><span>Mobile</span><ArrowUpDown className="w-4 h-4" /></div>
+                      </th>
+                      <th className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase hidden lg:table-cell">Email</th>
                       <th className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase hidden md:table-cell">College</th>
                       <th className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase">Status</th>
                       <th className="px-3 md:px-6 py-3 md:py-5 text-left text-[10px] sm:text-xs font-black text-gray-700 uppercase">Actions</th>
@@ -278,6 +290,12 @@ export default function LeadsPage() {
                                   <span className="truncate">{lead.email}</span>
                                 </p>
                               </div>
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-3 md:py-5">
+                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                              <Phone className="w-4 h-4 text-green-600" />
+                              <span className="font-medium">{lead.mobileNumber || 'N/A'}</span>
                             </div>
                           </td>
                           <td className="px-3 md:px-6 py-3 md:py-5 hidden lg:table-cell">
