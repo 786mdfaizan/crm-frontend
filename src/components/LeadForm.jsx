@@ -236,7 +236,7 @@ export default function LeadForm({ onSuccess, initialData }) {
             <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-emerald-500 rounded-md flex items-center justify-center">
               <GraduationCap className="w-3 h-3 text-white" />
             </div>
-            College Preference
+            College Preference With Location
             <span className="text-red-500">*</span>
           </label>
           <div className="relative">
