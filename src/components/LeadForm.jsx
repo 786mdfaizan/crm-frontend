@@ -27,12 +27,18 @@ import {
   Save,
   UserPlus,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Phone
 } from 'lucide-react';
 
+// Updated schema with mobileNumber
 const formSchema = z.object({
   studentName: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Please enter a valid email address'),
+  mobileNumber: z.string()
+    .min(10, 'Mobile number must be at least 10 digits')
+    .max(15, 'Mobile number is too long')
+    .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid mobile number format'),
   collegePreference: z.string().min(1, 'College preference is required'),
   remark: z.enum([
     'Followup',
@@ -191,6 +197,35 @@ export default function LeadForm({ onSuccess, initialData }) {
             <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
               <AlertCircle className="w-4 h-4" />
               <p>{errors.email.message}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Number - NEW FIELD */}
+        <div className="group">
+          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+            <div className="w-5 h-5 bg-gradient-to-br from-green-500 to-teal-500 rounded-md flex items-center justify-center">
+              <Phone className="w-3 h-3 text-white" />
+            </div>
+            Mobile Number
+            <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <Input 
+              {...register('mobileNumber')} 
+              placeholder="+91 9876543210"
+              className={`pl-11 h-12 border-2 transition-all duration-200 ${
+                errors.mobileNumber 
+                  ? 'border-red-300 focus:border-red-500' 
+                  : 'border-slate-200 focus:border-green-500 hover:border-slate-300'
+              } rounded-xl`}
+            />
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          </div>
+          {errors.mobileNumber && (
+            <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+              <AlertCircle className="w-4 h-4" />
+              <p>{errors.mobileNumber.message}</p>
             </div>
           )}
         </div>
